@@ -4,11 +4,9 @@ import time
 import random
 from playwright.sync_api import Page
 
-# Глобальная переменная для папки с видео
 PATH_TO_VIDEO_FOLDER = "./video"
 
 def smooth_move(page: Page, target_x: float, target_y: float, steps: int = 55):
-    """Ультра-плавное и размеренное перемещение курсора мыши."""
     try:
         current = page.evaluate("window.__lastMousePos")
     except Exception:
@@ -21,7 +19,6 @@ def smooth_move(page: Page, target_x: float, target_y: float, steps: int = 55):
     
     for i in range(1, steps + 1):
         t = i / steps
-        # Естественное ускорение в начале и замедление в конце (smoothstep)
         t = t * t * (3 - 2 * t)
         
         x = start_x + (target_x - start_x) * t
@@ -30,28 +27,23 @@ def smooth_move(page: Page, target_x: float, target_y: float, steps: int = 55):
         time.sleep(0.015)
 
 def trigger_red_ripple(page: Page, x: float, y: float):
-    """Принудительно рисует красную волну в указанных координатах экрана."""
     try:
         page.evaluate(f"window.CreateRipple({x}, {y});")
-        time.sleep(0.05)  # Небольшая задержка, чтобы анимация успела начаться на видео
+        time.sleep(0.05)
     except Exception:
         pass
 
 def move_and_click(page: Page, selector: str):
-    """Находит элемент, плавно ведет туда курсор, гарантированно рисует волну и кликает."""
     el = page.wait_for_selector(selector, state="attached", timeout=5000)
     box = el.bounding_box()
     if box:
         target_x = box["x"] + box["width"] / 2
         target_y = box["y"] + box["height"] / 2
         
-        # Плавно двигаем мышь к центру элемента
         smooth_move(page, target_x, target_y)
         
-        # Принудительно пускаем красную волну в точке клика
         trigger_red_ripple(page, target_x, target_y)
         
-        # Совершаем физический клик
         page.mouse.down()
         time.sleep(0.05)
         page.mouse.up()
@@ -59,7 +51,6 @@ def move_and_click(page: Page, selector: str):
     raise Exception(f"Element not found for click: {selector}")
 
 def human_type(page: Page, selector: str, text: str):
-    """Реалистичная неторопливая печать текста с человеческими задержками."""
     el = page.wait_for_selector(selector)
     el.focus()
     for char in text:
@@ -76,7 +67,6 @@ def CaptureVideo_Magento(
     street,
     house_no,
 ):
-    """Основная функция автоматизации браузера и записи сценария."""
     from playwright.sync_api import sync_playwright
     
     os.makedirs(PATH_TO_VIDEO_FOLDER, exist_ok=True)
@@ -90,7 +80,6 @@ def CaptureVideo_Magento(
         viewport={"width": 1280, "height": 720}
     )
     
-    # Скрипт инициализации для инъекции курсора и функции Ripple
     init_script = """
     (() => {
         window.__lastMousePos = { x: 100, y: 100 };
@@ -149,7 +138,6 @@ def CaptureVideo_Magento(
             cursor.style.top = `${e.clientY}px`;
         });
         
-        // Экспортируем глобальную функцию контролируемой отрисовки волн
         window.CreateRipple = (x, y) => {
             inject();
             const ripple = document.createElement('div');
@@ -212,24 +200,20 @@ def CaptureVideo_Magento(
     page = context.new_page()
     
     try:
-        # 1. Открытие страницы
         page.goto(url)
         page.wait_for_load_state("networkidle")
         
         page.evaluate(f"window.ShowCallout('Searching for Magento developers in {city}...', '#ffff00', '#000000', 300)")
         time.sleep(0.4)
         
-        # 2-3. Плавное движение к поисковой строке и гарантированный клик с красной волной
         search_input_selector = 'textarea[name="q"], input[name="q"], #search_form_input_homepage'
         move_and_click(page, search_input_selector)
         time.sleep(0.1)
         
-        # 4. Ввод запроса
         query_text = f"Magento developer in {city}"
         human_type(page, search_input_selector, query_text)
-        time.sleep(0.6)  # Пауза ПОСЛЕ ввода текста, чтобы зафиксировать написанное на видео
-        
-        # 5. Перемещение к синей кнопке поиска
+        time.sleep(0.6) 
+
         try:
             search_button_selector = 'button[class*="footerSearchButton"]'
             move_and_click(page, search_button_selector)
@@ -238,15 +222,12 @@ def CaptureVideo_Magento(
         
         time.sleep(0.4)
         
-        # 6. Ожидание результатов поиска
         result_link_selector = '[data-testid="mainline-result-list"] a[data-testid="result-title-a"], article h2 a[href^="http"], .links_main a.result__url'
         page.wait_for_selector(result_link_selector, state="visible", timeout=15000)
         time.sleep(0.5)
         
-        # 7. Движение к первому результату выдачи и клик с красной волной
         move_and_click(page, result_link_selector)
         
-        # Ожидание для красивой фиксации перехода на видео
         time.sleep(3)  
         raw_video_path = page.video.path()
         
