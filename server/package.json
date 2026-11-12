@@ -1,0 +1,13 @@
+{
+  "name": "video-upload-service",
+  "version": "1.0.0",
+  "description": "Web service and SQLite database for video uploads",
+  "main": "web_service.js",
+  "scripts": {
+    "start": "node web_service.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^2.5.0"
+  }
+}

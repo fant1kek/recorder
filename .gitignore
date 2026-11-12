@@ -1,0 +1,9 @@
+# Node.js
+node_modules/
+server/uploads/
+server/videos.db*
+
+# Python
+__pycache__/
+*.pyc
+client/video/
