@@ -34,7 +34,7 @@ def trigger_red_ripple(page: Page, x: float, y: float):
         pass
 
 def move_and_click(page: Page, selector: str):
-    el = page.wait_for_selector(selector, state="attached", timeout=5000)
+    el = page.wait_for_selector(selector, state="visible", timeout=30000)
     box = el.bounding_box()
     if box:
         target_x = box["x"] + box["width"] / 2
@@ -202,7 +202,7 @@ def CaptureVideo_Magento(
     try:
         page.goto(url)
         search_input_selector = 'textarea[name="q"], input[name="q"], #search_form_input_homepage'
-        page.wait_for_selector(search_input_selector, state="visible", timeout=15000)
+        page.wait_for_selector(search_input_selector, state="visible", timeout=30000)
         
         page.evaluate(f"window.ShowCallout('Searching for Magento developers in {city}...', '#ffff00', '#000000', 300)")
         time.sleep(0.4)
@@ -224,7 +224,7 @@ def CaptureVideo_Magento(
         time.sleep(0.4)
         
         result_link_selector = '[data-testid="mainline-result-list"] a[data-testid="result-title-a"], article h2 a[href^="http"], .links_main a.result__url'
-        page.wait_for_selector(result_link_selector, state="visible", timeout=15000)
+        page.wait_for_selector(result_link_selector, state="visible", timeout=30000)
         time.sleep(0.5)
         
         move_and_click(page, result_link_selector)

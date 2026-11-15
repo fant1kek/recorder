@@ -49,7 +49,7 @@ const upload = multer({ storage });
 const app = express();
 
 app.post("/upload", upload.single("file"), (req, res) => {
-  const companyName = req.body.company_name;
+  const companyName = req.body?.company_name;
 
   if (!companyName || !req.file) {
     return res
