@@ -201,7 +201,8 @@ def CaptureVideo_Magento(
     
     try:
         page.goto(url)
-        page.wait_for_load_state("networkidle")
+        search_input_selector = 'textarea[name="q"], input[name="q"], #search_form_input_homepage'
+        page.wait_for_selector(search_input_selector, state="visible", timeout=15000)
         
         page.evaluate(f"window.ShowCallout('Searching for Magento developers in {city}...', '#ffff00', '#000000', 300)")
         time.sleep(0.4)
